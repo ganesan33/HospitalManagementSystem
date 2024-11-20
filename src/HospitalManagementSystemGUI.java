@@ -2,16 +2,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
-import java.util.HashMap;
-import java.util.Map;
 
 public class HospitalManagementSystemGUI extends JFrame {
     private Connection connection;
     private JTextArea textArea;
-    private JTextField nameField, ageField, genderField, contactField, addressField, symptomsField, admissionFeeField, admissionDateField, dischargeField, roomField;
+    private JTextField nameField, ageField, genderField, contactField, addressField, symptomsField, admissionFeeField, admissionDateField, dischargeField;
     private JButton addPatientButton, updatePatientButton, showAllPatientsButton, showAllDoctorsButton, bookAppointmentButton, showAllAppointmentsButton, assignRoomButton, showAllRoomsButton;
     private JButton generateBillButton, viewBillHistoryButton, makePaymentButton;
-    private JPanel billingPanel;
+
     public HospitalManagementSystemGUI() {
         try {
             connection = DatabaseConnection.getConnection();
@@ -21,121 +19,159 @@ public class HospitalManagementSystemGUI extends JFrame {
         }
 
         setTitle("Hospital Management System");
-        setSize(800, 800);  // Increased size to accommodate all components
+        setSize(900, 850);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
+        setBackground(new Color(245, 245, 245));
 
-        // Create main panel with vertical BoxLayout
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.setFont(new Font("SansSerif", Font.BOLD, 15));
+        tabbedPane.setBackground(new Color(60, 100, 150));
+        tabbedPane.setForeground(Color.WHITE);
 
-        // Patient Information Panel
-        JPanel patientInfoPanel = new JPanel(new GridLayout(9, 2, 5, 5));
-        patientInfoPanel.setBorder(BorderFactory.createTitledBorder("Patient Information"));
+        tabbedPane.addTab("Patients", createPatientPanel());
+        tabbedPane.addTab("Hospital Services", createServicesPanel());
+        tabbedPane.addTab("Billing", createBillingPanel());
 
-        // Initialize text fields (keep your existing initializations)
-        nameField = new JTextField();
-        ageField = new JTextField();
-        genderField = new JTextField();
-        contactField = new JTextField();
-        addressField = new JTextField();
-        symptomsField = new JTextField();
-        admissionFeeField = new JTextField();
-        admissionDateField = new JTextField();
-        dischargeField = new JTextField();
-
-        // Add components to patient info panel
-        patientInfoPanel.add(new JLabel("Name: "));
-        patientInfoPanel.add(nameField);
-        patientInfoPanel.add(new JLabel("Age: "));
-        patientInfoPanel.add(ageField);
-        patientInfoPanel.add(new JLabel("Gender: "));
-        patientInfoPanel.add(genderField);
-        patientInfoPanel.add(new JLabel("Contact Number: "));
-        patientInfoPanel.add(contactField);
-        patientInfoPanel.add(new JLabel("Address: "));
-        patientInfoPanel.add(addressField);
-        patientInfoPanel.add(new JLabel("Symptoms: "));
-        patientInfoPanel.add(symptomsField);
-        patientInfoPanel.add(new JLabel("Admission Fee: "));
-        patientInfoPanel.add(admissionFeeField);
-        patientInfoPanel.add(new JLabel("Admission Date (yyyy-MM-dd): "));
-        patientInfoPanel.add(admissionDateField);
-        patientInfoPanel.add(new JLabel("Discharge Date (yyyy-MM-dd): "));
-        patientInfoPanel.add(dischargeField);
-
-        // Patient Action Buttons Panel
-        JPanel patientActionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        patientActionPanel.setBorder(BorderFactory.createTitledBorder("Patient Actions"));
-
-        // Initialize buttons
-        addPatientButton = new JButton("Add Patient");
-        updatePatientButton = new JButton("Update Patient");
-        showAllPatientsButton = new JButton("View All Patients");
-        showAllDoctorsButton = new JButton("View All Doctors");
-        bookAppointmentButton = new JButton("Book Appointment");
-        showAllAppointmentsButton = new JButton("View All Appointments");
-        assignRoomButton = new JButton("Assign Room");
-        showAllRoomsButton = new JButton("View All Rooms");
-        generateBillButton = new JButton("Generate Bill");
-        viewBillHistoryButton = new JButton("View Bill History");
-        makePaymentButton = new JButton("Make Payment");
-
-        // Add buttons to patient action panel
-        patientActionPanel.add(addPatientButton);
-        patientActionPanel.add(updatePatientButton);
-        patientActionPanel.add(showAllPatientsButton);
-        patientActionPanel.add(assignRoomButton);
-
-        // Hospital Services Panel
-        JPanel servicesPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        servicesPanel.setBorder(BorderFactory.createTitledBorder("Hospital Services"));
-        servicesPanel.add(showAllDoctorsButton);
-        servicesPanel.add(bookAppointmentButton);
-        servicesPanel.add(showAllAppointmentsButton);
-        servicesPanel.add(showAllRoomsButton);
-
-        // Billing Panel
-        JPanel billingPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        billingPanel.setBorder(BorderFactory.createTitledBorder("Billing"));
-        billingPanel.add(generateBillButton);
-        billingPanel.add(viewBillHistoryButton);
-        billingPanel.add(makePaymentButton);
-
-        // Text Area
         textArea = new JTextArea();
         textArea.setEditable(false);
+        textArea.setFont(new Font("SansSerif", Font.PLAIN, 14));
         JScrollPane scrollPane = new JScrollPane(textArea);
-        scrollPane.setPreferredSize(new Dimension(750, 300));
+        scrollPane.setPreferredSize(new Dimension(850, 300));
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Add all panels to main panel
-        mainPanel.add(patientInfoPanel);
-        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        mainPanel.add(patientActionPanel);
-        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        mainPanel.add(servicesPanel);
-        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        mainPanel.add(billingPanel);
-
-        // Add components to frame
-        add(mainPanel, BorderLayout.NORTH);
+        add(tabbedPane, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Add action listeners (keep your existing action listeners)
+        UIManager.put("TabbedPane.selected", new Color(72, 120, 192));
+    }
+
+    private JPanel createPatientPanel() {
+        JPanel panel = new GradientPanel(new Color(230, 240, 255), new Color(190, 210, 240));
+
+        JPanel patientInfoPanel = new JPanel(new GridLayout(9, 2, 8, 8));
+        patientInfoPanel.setOpaque(false);
+        patientInfoPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEmptyBorder(), "Patient Information",
+                0, 0, new Font("SansSerif", Font.BOLD, 16), new Color(80, 120, 180)));
+
+        nameField = new JTextField(); ageField = new JTextField(); genderField = new JTextField(); contactField = new JTextField();
+        addressField = new JTextField(); symptomsField = new JTextField(); admissionFeeField = new JTextField();
+        admissionDateField = new JTextField(); dischargeField = new JTextField();
+
+        addLabelAndField(patientInfoPanel, "Name:", nameField);
+        addLabelAndField(patientInfoPanel, "Age:", ageField);
+        addLabelAndField(patientInfoPanel, "Gender:", genderField);
+        addLabelAndField(patientInfoPanel, "Contact Number:", contactField);
+        addLabelAndField(patientInfoPanel, "Address:", addressField);
+        addLabelAndField(patientInfoPanel, "Symptoms:", symptomsField);
+        addLabelAndField(patientInfoPanel, "Admission Fee:", admissionFeeField);
+        addLabelAndField(patientInfoPanel, "Admission Date:", admissionDateField);
+        addLabelAndField(patientInfoPanel, "Discharge Date:", dischargeField);
+
+        JPanel patientActionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20));
+        patientActionPanel.setOpaque(false);
+        addPatientButton = createStyledButton("Add Patient");
+        updatePatientButton = createStyledButton("Update Patient");
+        showAllPatientsButton = createStyledButton("View All Patients");
+
         addPatientButton.addActionListener(e -> addPatient());
         updatePatientButton.addActionListener(e -> updatePatient());
         showAllPatientsButton.addActionListener(e -> showAllPatients());
+
+        patientActionPanel.add(addPatientButton);
+        patientActionPanel.add(updatePatientButton);
+        patientActionPanel.add(showAllPatientsButton);
+
+        panel.setLayout(new BorderLayout(10, 10));
+        panel.add(patientInfoPanel, BorderLayout.NORTH);
+        panel.add(patientActionPanel, BorderLayout.SOUTH);
+
+        return panel;
+    }
+
+    private JPanel createServicesPanel() {
+        JPanel panel = new GradientPanel(new Color(230, 240, 255), new Color(190, 210, 240));
+        panel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20));
+
+        showAllDoctorsButton = createStyledButton("View All Doctors");
+        bookAppointmentButton = createStyledButton("Book Appointment");
+        showAllAppointmentsButton = createStyledButton("View All Appointments");
+        assignRoomButton = createStyledButton("Assign Room");
+        showAllRoomsButton = createStyledButton("View All Rooms");
+
         showAllDoctorsButton.addActionListener(e -> showAllDoctors());
         bookAppointmentButton.addActionListener(e -> bookAppointment());
         showAllAppointmentsButton.addActionListener(e -> showAllAppointments());
         assignRoomButton.addActionListener(e -> assignRoom());
         showAllRoomsButton.addActionListener(e -> showAllRooms());
+
+        panel.add(showAllDoctorsButton);
+        panel.add(bookAppointmentButton);
+        panel.add(showAllAppointmentsButton);
+        panel.add(assignRoomButton);
+        panel.add(showAllRoomsButton);
+
+        return panel;
+    }
+
+    private JPanel createBillingPanel() {
+        JPanel panel = new GradientPanel(new Color(230, 240, 255), new Color(190, 210, 240));
+        panel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20));
+
+        generateBillButton = createStyledButton("Generate Bill");
+        viewBillHistoryButton = createStyledButton("View Bill History");
+        makePaymentButton = createStyledButton("Make Payment");
+
         generateBillButton.addActionListener(e -> generateBill());
         viewBillHistoryButton.addActionListener(e -> viewBillHistory());
         makePaymentButton.addActionListener(e -> makePayment());
+
+        panel.add(generateBillButton);
+        panel.add(viewBillHistoryButton);
+        panel.add(makePaymentButton);
+
+        return panel;
     }
 
+    private JButton createStyledButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("SansSerif", Font.PLAIN, 15));
+        button.setBackground(new Color(72, 120, 192));
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setPreferredSize(new Dimension(160, 50));
+        return button;
+    }
+
+    private void addLabelAndField(JPanel panel, String labelText, JTextField textField) {
+        JLabel label = new JLabel(labelText);
+        label.setFont(new Font("SansSerif", Font.PLAIN, 15));
+        label.setForeground(new Color(60, 60, 60));
+        panel.add(label);
+        panel.add(textField);
+        textField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(190, 210, 240)),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+    }
+
+    private class GradientPanel extends JPanel {
+        private Color color1, color2;
+        public GradientPanel(Color color1, Color color2) {
+            this.color1 = color1;
+            this.color2 = color2;
+        }
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setPaint(new GradientPaint(0, 0, color1, 0, getHeight(), color2));
+            g2d.fillRect(0, 0, getWidth(), getHeight());
+        }
+    }
     private void addPatient() {
         String name = nameField.getText();
         int age;
@@ -645,16 +681,18 @@ public class HospitalManagementSystemGUI extends JFrame {
             int billId = Integer.parseInt(billIdStr);
 
             // First get the current bill details
-            String checkSql = "SELECT total_amount, paid_amount FROM billing WHERE bill_id = ?";
+            String checkSql = "SELECT total_amount, paid_amount, balance_amount FROM billing WHERE bill_id = ?";
             double totalAmount = 0;
-            double alreadyPaid = 0;
+            double paidAmount = 0;
+            double balanceAmount = 0;
 
             try (PreparedStatement checkStmt = connection.prepareStatement(checkSql)) {
                 checkStmt.setInt(1, billId);
                 ResultSet rs = checkStmt.executeQuery();
                 if (rs.next()) {
                     totalAmount = rs.getDouble("total_amount");
-                    alreadyPaid = rs.getDouble("paid_amount");
+                    paidAmount = rs.getDouble("paid_amount");
+                    balanceAmount = rs.getDouble("balance_amount");
                 } else {
                     JOptionPane.showMessageDialog(this, "Bill not found.");
                     return;
@@ -679,50 +717,30 @@ public class HospitalManagementSystemGUI extends JFrame {
             );
 
             if (paymentMethod != null) {
-                // Check if payment would exceed the total amount
-                double totalAfterPayment = alreadyPaid + amount;
-                if (totalAfterPayment > totalAmount) {
-                    int response = JOptionPane.showConfirmDialog(this,
-                            "Payment amount exceeds the bill by $" + (totalAfterPayment - totalAmount) +
-                                    "\nDo you want to proceed? The excess amount will be recorded as overpayment.",
-                            "Payment Exceeds Bill",
-                            JOptionPane.YES_NO_OPTION);
+                // Update the paid amount and balance amount
+                double newPaidAmount = paidAmount + amount;
+                double newBalanceAmount = totalAmount - newPaidAmount;
 
-                    if (response != JOptionPane.YES_OPTION) {
-                        return;
-                    }
+                // Update billing table
+                String sql = "UPDATE billing SET paid_amount = ?, balance_amount = ?, payment_status = CASE WHEN (paid_amount + ?) >= total_amount THEN 'PAID' ELSE 'PARTIAL' END WHERE bill_id = ?";
+                try (PreparedStatement updateStmt = connection.prepareStatement(sql)) {
+                    updateStmt.setDouble(1, newPaidAmount);
+                    updateStmt.setDouble(2, newBalanceAmount);
+                    updateStmt.setDouble(3, amount);
+                    updateStmt.setInt(4, billId);
+                    updateStmt.executeUpdate();
                 }
 
                 // Record payment
-                String sql = "INSERT INTO payments (bill_id, amount_paid, payment_date, payment_method, payment_status) VALUES (?, ?, CURDATE(), ?, 'COMPLETED')";
+                sql = "INSERT INTO payments (bill_id, amount_paid, payment_date, payment_method, payment_status) VALUES (?, ?, CURDATE(), ?, 'COMPLETED')";
                 try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
                     pstmt.setInt(1, billId);
                     pstmt.setDouble(2, amount);
                     pstmt.setString(3, paymentMethod);
                     pstmt.executeUpdate();
-
-                    // Update billing table
-                    sql = "UPDATE billing SET paid_amount = paid_amount + ?, " +
-                            "balance_amount = CASE WHEN (paid_amount + ?) > total_amount THEN 0 ELSE (total_amount - (paid_amount + ?)) END, " +
-                            "payment_status = CASE WHEN (paid_amount + ?) >= total_amount THEN 'PAID' ELSE 'PARTIAL' END " +
-                            "WHERE bill_id = ?";
-                    try (PreparedStatement updateStmt = connection.prepareStatement(sql)) {
-                        updateStmt.setDouble(1, amount);
-                        updateStmt.setDouble(2, amount);
-                        updateStmt.setDouble(3, amount);
-                        updateStmt.setDouble(4, amount);
-                        updateStmt.setInt(5, billId);
-                        updateStmt.executeUpdate();
-                    }
-
-                    if (totalAfterPayment > totalAmount) {
-                        JOptionPane.showMessageDialog(this,
-                                "Payment processed successfully!\n" +
-                                        "Overpayment amount: $" + (totalAfterPayment - totalAmount));
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Payment processed successfully!");
-                    }
                 }
+
+                JOptionPane.showMessageDialog(this, "Payment processed successfully!");
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error processing payment: " + e.getMessage());
@@ -738,4 +756,3 @@ public class HospitalManagementSystemGUI extends JFrame {
         });
     }
 }
-
